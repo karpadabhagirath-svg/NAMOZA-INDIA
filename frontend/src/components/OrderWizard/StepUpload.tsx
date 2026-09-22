@@ -51,7 +51,7 @@ export default function StepUpload({ form, update }: Props) {
     update({ photos: combined });
   };
 
-  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
+  const handleDrop = (e: DragEvent<HTMLLabelElement>) => {
     e.preventDefault();
     setDragActive(false);
     addFiles(e.dataTransfer.files);
