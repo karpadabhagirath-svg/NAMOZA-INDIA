@@ -1,4 +1,3 @@
-import cors from "cors";
 import express from "express";
 import adminRoutes from "./routes/admin";
 import authRoutes from "./routes/auth";
@@ -16,15 +15,21 @@ export function createApp() {
     .map((o) => o.trim())
     .filter(Boolean);
 
-  const corsOptions: cors.CorsOptions = {
-    origin: allowedOrigins,
-    credentials: true,
-    methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  };
-
-  app.use(cors(corsOptions));
-  app.options("*", cors(corsOptions));
+  app.use((req, res, next) => {
+    const origin = req.headers.origin;
+    if (origin && allowedOrigins.includes(origin)) {
+      res.setHeader("Access-Control-Allow-Origin", origin);
+      res.setHeader("Vary", "Origin");
+      res.setHeader("Access-Control-Allow-Credentials", "true");
+      res.setHeader("Access-Control-Allow-Methods", "GET,POST,PATCH,PUT,DELETE,OPTIONS");
+      res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
+    }
+    if (req.method === "OPTIONS") {
+      res.sendStatus(204);
+      return;
+    }
+    next();
+  });
 
   app.use(express.json({ limit: "2mb" }));
   app.use(express.urlencoded({ extended: true }));
