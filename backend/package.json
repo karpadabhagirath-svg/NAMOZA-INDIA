@@ -6,7 +6,7 @@
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
-    "build": "echo DIAG_START && ls node_modules/@types && echo DIAG_MID && npm ls --depth=0 && echo DIAG_END && tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json",
     "start": "node dist/index.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
