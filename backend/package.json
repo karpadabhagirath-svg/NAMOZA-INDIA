@@ -10,7 +10,7 @@
     "start": "node dist/index.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:deploy": "prisma migrate deploy",
+    "prisma:deploy": "prisma db push --accept-data-loss --skip-generate",
     "seed": "ts-node-dev --transpile-only src/seed.ts"
   },
   "dependencies": {
