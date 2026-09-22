@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-display: "Playfair Display", serif;
+  --font-sans: "Inter", sans-serif;
+}
+
+* {
+  scroll-behavior: smooth;
+}
+
+html,
+body {
+  background-color: #0c0d10;
+}
+
+body {
+  @apply bg-graphite-950 text-mist-100 font-sans antialiased;
+}
+
+::selection {
+  background-color: rgba(176, 141, 87, 0.35);
+  color: #f4f4f5;
+}
+
+/* Slim, premium scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #0c0d10;
+}
+::-webkit-scrollbar-thumb {
+  background: #3a3f49;
+  border-radius: 999px;
+  border: 2px solid #0c0d10;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #6b707c;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+/* Reusable "royal" gradient text */
+.gold-text {
+  background: linear-gradient(90deg, #c7a876, #b08d57 45%, #8e703f);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Shimmering divider used between sections */
+.royal-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(176, 141, 87, 0.6), transparent);
+}
+
+/* Hide default cursor when the custom reactive cursor is active (desktop, fine pointer only) */
+@media (hover: hover) and (pointer: fine) {
+  body.has-custom-cursor {
+    cursor: none;
+  }
+  body.has-custom-cursor a,
+  body.has-custom-cursor button {
+    cursor: none;
+  }
+}

@@ -1,0 +1,102 @@
+// Namoza India — database schema
+// Run `npm run prisma:migrate` after setting DATABASE_URL to create these tables.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum OrderStatus {
+  RECEIVED // order placed, awaiting review
+  CONFIRMED // photos reviewed and accepted by the studio
+  IN_PRODUCTION // statue is being sculpted / printed / finished
+  QUALITY_CHECK // final finishing and QC
+  SHIPPED // dispatched to customer
+  DELIVERED // received by customer
+  ON_HOLD // paused — e.g. waiting on customer response
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  PARTIALLY_PAID
+  REFUNDED
+  FAILED
+}
+
+enum StatueMaterial {
+  RESIN_PAINTED
+  MARBLE_FINISH
+  BRONZE_FINISH
+  WOOD_FINISH
+}
+
+enum StatueSize {
+  SMALL_6IN
+  MEDIUM_12IN
+  LARGE_18IN
+  CUSTOM
+}
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+}
+
+model Order {
+  id                String        @id @default(cuid())
+  orderNumber       String        @unique // human-friendly, e.g. NMZ-20260922-4821
+
+  // Customer contact
+  customerName      String
+  customerEmail     String
+  customerPhone     String
+  shippingAddress   String
+
+  // Customization choices
+  material          StatueMaterial
+  size              StatueSize
+  customSizeNotes   String?
+  baseEngraving     String?       // optional text engraved on the base
+  poseNotes         String?       // free-text notes on desired pose/style
+  referenceNotes    String?       // any other notes from the customer
+
+  quotedPriceInr    Int           // price in INR paise-free integer rupees
+  status            OrderStatus   @default(RECEIVED)
+  paymentStatus     PaymentStatus @default(PENDING)
+
+  razorpayOrderId   String?
+  razorpayPaymentId String?
+
+  photos            OrderPhoto[]
+  statusEvents      StatusEvent[]
+
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+}
+
+model OrderPhoto {
+  id        String   @id @default(cuid())
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId   String
+  url       String   // served path, e.g. /uploads/xyz.jpg
+  filename  String
+  createdAt DateTime @default(now())
+}
+
+model StatusEvent {
+  id        String      @id @default(cuid())
+  order     Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId   String
+  status    OrderStatus
+  note      String?
+  createdAt DateTime    @default(now())
+}
