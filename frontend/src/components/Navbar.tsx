@@ -10,6 +10,7 @@ import clsx from "clsx";
 const LINKS = [
   { href: "/#how-it-works", label: "How It Works" },
   { href: "/#gallery", label: "Gallery" },
+  { href: "/#premade", label: "Premade Designs" },
   { href: "/#pricing", label: "Pricing" },
   { href: "/track", label: "Track Order" },
 ];
