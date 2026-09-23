@@ -4,6 +4,7 @@ import { z } from "zod";
 import { AuthedRequest } from "../middleware/auth";
 import { prisma } from "../prismaClient";
 import { sendAdminNewOrderAlert, sendOrderConfirmationEmail, sendStatusUpdateEmail } from "../services/emailService";
+import { getPhotoUrl, uploadPhotoToS3 } from "../services/s3Service";
 import { generateOrderNumber } from "../utils/orderNumber";
 import { calculateQuote } from "../utils/pricing";
 
@@ -19,6 +20,14 @@ const createOrderSchema = z.object({
   poseNotes: z.string().max(1000).optional(),
   referenceNotes: z.string().max(1000).optional(),
 });
+
+/** Replaces each photo's stored S3 key with a time-limited signed URL for the response. */
+async function withSignedPhotoUrls<T extends { photos: Array<{ url: string }> }>(order: T): Promise<T> {
+  const photos = await Promise.all(
+    order.photos.map(async (photo) => ({ ...photo, url: await getPhotoUrl(photo.url) }))
+  );
+  return { ...order, photos } as T;
+}
 
 /** POST /api/orders — public. Accepts multipart/form-data with up to 6 photos + order fields. */
 export async function createOrder(req: Request, res: Response) {
@@ -36,6 +45,13 @@ export async function createOrder(req: Request, res: Response) {
   const quotedPriceInr = calculateQuote(data.material, data.size);
   const orderNumber = generateOrderNumber();
 
+  const uploadedPhotos = await Promise.all(
+    files.map(async (f) => ({
+      url: await uploadPhotoToS3(f),
+      filename: f.originalname,
+    }))
+  );
+
   const order = await prisma.order.create({
     data: {
       orderNumber,
@@ -52,10 +68,7 @@ export async function createOrder(req: Request, res: Response) {
       quotedPriceInr,
       status: OrderStatus.RECEIVED,
       photos: {
-        create: files.map((f) => ({
-          url: `/uploads/${f.filename}`,
-          filename: f.originalname,
-        })),
+        create: uploadedPhotos,
       },
       statusEvents: {
         create: [{ status: OrderStatus.RECEIVED, note: "Order placed by customer" }],
@@ -73,7 +86,7 @@ export async function createOrder(req: Request, res: Response) {
   }).catch(() => {});
   sendAdminNewOrderAlert({ orderNumber: order.orderNumber, customerName: order.customerName }).catch(() => {});
 
-  res.status(201).json({ order });
+  res.status(201).json({ order: await withSignedPhotoUrls(order) });
 }
 
 const trackSchema = z.object({
@@ -103,7 +116,7 @@ export async function trackOrder(req: Request, res: Response) {
     return res.status(404).json({ error: "No order found with that order number and email" });
   }
 
-  res.json({ order });
+  res.json({ order: await withSignedPhotoUrls(order) });
 }
 
 /** GET /api/admin/orders — admin only. List all orders, most recent first. */
@@ -122,7 +135,7 @@ export async function getOrder(req: AuthedRequest, res: Response) {
     include: { photos: true, statusEvents: { orderBy: { createdAt: "asc" } } },
   });
   if (!order) return res.status(404).json({ error: "Order not found" });
-  res.json({ order });
+  res.json({ order: await withSignedPhotoUrls(order) });
 }
 
 const updateStatusSchema = z.object({
