@@ -5,6 +5,7 @@ import Hero from "@/components/Hero";
 import HowItWorks from "@/components/HowItWorks";
 import ImageToStatue from "@/components/ImageToStatue";
 import MaterialsPricing from "@/components/MaterialsPricing";
+import PremadeModels from "@/components/PremadeModels";
 import Testimonials from "@/components/Testimonials";
 
 export default function HomePage() {
@@ -14,6 +15,7 @@ export default function HomePage() {
       <ImageToStatue />
       <HowItWorks />
       <Gallery />
+      <PremadeModels />
       <MaterialsPricing />
       <Testimonials />
       <FAQ />
