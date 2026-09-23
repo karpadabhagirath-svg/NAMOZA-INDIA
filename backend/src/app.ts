@@ -5,7 +5,6 @@ import contactRoutes from "./routes/contact";
 import orderRoutes from "./routes/orders";
 import paymentRoutes from "./routes/payments";
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler";
-import { uploadDir } from "./middleware/upload";
 
 export function createApp() {
   const app = express();
@@ -33,9 +32,6 @@ export function createApp() {
 
   app.use(express.json({ limit: "2mb" }));
   app.use(express.urlencoded({ extended: true }));
-
-  // Serve uploaded customer photos (dev/local storage mode).
-  app.use("/uploads", express.static(uploadDir));
 
   app.get("/health", (_req, res) => res.json({ ok: true, service: "namoza-india-backend" }));
 
