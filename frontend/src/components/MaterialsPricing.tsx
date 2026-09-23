@@ -8,20 +8,20 @@ const PLANS = [
   {
     name: "Small",
     size: "6 inch",
-    price: "₹3,499",
+    price: "₹899",
     features: ["Hand-painted resin", "1 reference photo", "Standard pedestal", "3–4 week delivery"],
   },
   {
     name: "Medium",
     size: "12 inch",
-    price: "₹6,999",
+    price: "₹1,799",
     popular: true,
     features: ["Choice of 4 finishes", "Up to 3 reference photos", "Engraved base text", "3–4 week delivery"],
   },
   {
     name: "Large",
     size: "18 inch",
-    price: "₹12,999",
+    price: "₹2,999",
     features: ["Choice of 4 finishes", "Up to 6 reference photos", "Engraved base text", "Priority 2–3 week delivery"],
   },
 ];
